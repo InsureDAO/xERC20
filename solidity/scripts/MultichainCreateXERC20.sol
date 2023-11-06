@@ -1,24 +1,24 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.8.4 <0.9.0;
 
+// solhint-disable-next-line no-console
 import {console} from 'forge-std/console.sol';
 import {Test} from 'forge-std/Test.sol';
 import {XERC20} from '../contracts/XERC20.sol';
-import {XERC20Lockbox} from '../contracts/XERC20Lockbox.sol';
-import {XERC20Factory, IXERC20Factory} from '../contracts/XERC20Factory.sol';
+import {XERC20Factory} from '../contracts/XERC20Factory.sol';
 import {Script} from 'forge-std/Script.sol';
 import {ScriptingLibrary} from './ScriptingLibrary/ScriptingLibrary.sol';
 
 contract MultichainCreateXERC20 is Script, ScriptingLibrary {
   uint256 public deployer = vm.envUint('DEPLOYER_PRIVATE_KEY');
-  string[] public chains = ['POLYGON_RPC', 'OPTIMISM_RPC', 'GOERLI_RPC'];
+  string[] public chains = ['GOERLI_RPC', 'OPTIMISM_GOERLI_RPC'];
   string public temp = vm.readLine('./solidity/scripts/ScriptingLibrary/FactoryAddress.txt');
 
   address public fact = toAddress(temp);
   XERC20Factory public factory = XERC20Factory(fact);
   // NOTE: This is an array of the addresses of the ERC20 contract you are deploying the lockbox for, if you dont want to deploy a lockbox leave this as is
   // NOTE: You must add the token address of your token for each chain you are deploying to in order of how the chains are listed in chains.txt, if no address is listed we will not deplyo a lockbox
-  address[] public erc20 = [address(0)];
+  address[] public erc20 = [address(0x09f0Ad07E7363557D077CF3e3BbaB9365DA533F6), address(0)];
   // NOTE: Please also for each add a boolean to this array, if you are deploying a lockbox for the native token set it to true, if not set it to false for each iteration of an erc20
   bool[] public isNative = [false];
 
@@ -29,8 +29,8 @@ contract MultichainCreateXERC20 is Script, ScriptingLibrary {
     uint256[][] memory burnLimits = new uint256[][](chains.length);
 
     // Below are all the variables you need to change when deploying your XERC20 token
-    string memory name = 'Test Token';
-    string memory symbol = 'TST';
+    string memory name = 'Insure Token';
+    string memory symbol = 'INSURE';
 
     for (uint256 i; i < chains.length; i++) {
       bridges[i] = new address[](0);
@@ -57,7 +57,9 @@ contract MultichainCreateXERC20 is Script, ScriptingLibrary {
         lockbox = factory.deployLockbox(xerc20, _erc20, _isNative);
       }
       vm.stopBroadcast();
+      // solhint-disable-next-line no-console
       console.log(chains[i], 'token deployed to: ', xerc20);
+      // solhint-disable-next-line no-console
       console.log(chains[i], 'lockbox deployed to: ', lockbox);
       tokens[i] = xerc20;
     }

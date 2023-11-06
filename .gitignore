@@ -20,3 +20,6 @@ out/*/*
 # Keep the latest deployment only
 broadcast/**
 !broadcast/**/run-latest.json
+!broadcast/multi
+!broadcast/multi/MultichainCreateXERC20.sol-latest/
+!broadcast/multi/MultichainCreateXERC20.sol-latest/run.json
